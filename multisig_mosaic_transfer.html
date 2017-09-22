@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>マルチシグ・モザイク送信サンプル</title>
+<script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/core.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/x64-core.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha3.js"></script>
+<script src="multisig_mosaic_transfer.js"></script>
+<script src="nacl-fast.js"></script>
+<script src="KeyPair.js"></script>
+<script>
+
+var RECIPIENT_ADDRESS = "TAHIYQX57EDTM4HFVRKF46NBDUD57ABYMXHDE4DT";								//受信アドレス
+
+//マルチシグ：Alice
+var MULTISIG_ADDRESS = "TCL2IFCXAKFBRYAB54WXMT3KZX4KZR2DHJBZYAVA"; 								//申請者アドレス
+var MULTISIG_PUBLIC_KEY = "99d9631e73cd1f782b5191b04d120b574b04db49a2aa5cadc161ee4658b917b6"; 	//申請者公開鍵
+
+//申請者　TDYONO5IYPHRVMQKDFJWLZDKXBIVK6KBJEWZVLVG
+var SENDER_PUBLIC_KEY1 =  "9db8a3793da623ef1154e07596d5cac80346b77b5487f228a596bf973edc7b1d";
+var SENDER_PRIVATE_KEY1 = "17d5270b3f9153c9267ff0947a2cdfd2d8eba000e7fd0deb862ea0d849a6eed7";
+
+//署名者　TBGQZMEJQ7KT26KVT6DZFLV6RDTYYBSDBK2AFDHW
+var SENDER_PUBLIC_KEY2 =  "211f73840b13748136d2ce2b7c3bbc87770b845073f5a819d57bd8e031151b66";
+var SENDER_PRIVATE_KEY2 = "1935ae790611c522b286dd75b6dfc7694e8800b32cdaca9ee2cfed5b3d1fe4d9";
+
+var TRANSACTION_HASH = "";
+
+//送金API URL
+var URL_TRANSACTION_ANNOUNCE = "http://50.3.87.123:7890/transaction/announce";
+
+//モザイク定義
+var MOSAICS = [
+	{"mosaicId":{'name': "tip",'namespaceId': "xembook"},"quantity":10,     "supply":1000000,   "divisibility":1},
+	{"mosaicId":{'name': "xem",'namespaceId': "nem"}    ,"quantity":1000000,"supply":8999999999,"divisibility":6}
+]; 
+
+var MULTIPLIER = 1;		//送信セット数（固定値）
+var SEND_FEE = 300000;
+var MSIG_FEE = 150000;
+
+
+
+$(function(){
+	function sendRequestA(){
+
+		if(confirm("申請します。")){
+			mosaicTransferRequest().done(
+			function(data){
+				console.log(data);
+				alert(data["innerTransactionHash"]["data"]);
+				TRANSACTION_HASH = data["innerTransactionHash"]["data"];
+			});
+		}
+	}
+
+	function sendRequestB(){
+
+		if(confirm("承認します。")){
+			prepareSignature().done(
+			function(data){
+				console.log(data);
+			});
+		}
+	}
+
+	$("#btnA").click(function(){sendRequestA();return false;});
+	$("#btnB").click(function(){sendRequestB();return false;});
+});
+	
+</script>
+</head>
+<body>
+
+<h1>マルチシグMOSAIC送信サンプル</h1>
+<button id="btnA">申請</button>
+<button id="btnB">承認</button>
+
+</body>
+</html>
